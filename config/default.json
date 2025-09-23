@@ -1,0 +1,6 @@
+{
+  "port": 3000,
+  "logDir": "/var/log/pxt",
+  "token": "please_change_me",
+  "bodyLimit": "2mb"
+}

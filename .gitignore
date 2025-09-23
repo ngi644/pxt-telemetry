@@ -137,3 +137,17 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+/config/*.local.json
+
+
+# Runtime logs (ローカルで誤って追加しないため)
+*.log
+*.pid
+*.seed
+*.tgz
+
+# Editor
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,21 @@
+[Unit]
+Description=PXT/VR Telemetry Collector (local file)
+After=network.target
+
+[Service]
+Type=simple
+User=%i
+Group=adm
+WorkingDirectory=/opt/pxt-telemetry
+EnvironmentFile=/etc/pxt-telemetry.env
+ExecStart=/usr/bin/node /opt/pxt-telemetry/server.js
+Restart=always
+RestartSec=2
+# 軽いハードニング
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,14 @@
+{
+  "name": "pxt-telemetry",
+  "version": "0.1.0",
+  "description": "Lightweight telemetry collector for PXT/VR (JSON Lines to file or containerized for Cloud Run)",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
