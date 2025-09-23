@@ -10,6 +10,7 @@ import path from "path";
 import express from "express";
 import zlib from "zlib";
 import crypto from "crypto";
+import cors from "cors";
 
 // ===== 設定 =====
 const cfg = loadConfig();
@@ -17,6 +18,50 @@ ensureDir(cfg.logDir);
 
 // ===== アプリ =====
 const app = express();
+
+// ===== CORS =====
+// 許可するオリジン（複数可）を環境変数で指定（無指定はローカル開発用に http://localhost:* を許可）
+const ALLOW_ORIGINS = (process.env.CORS_ORIGINS || "http://localhost:*,http://127.0.0.1:*")
+  .split(",")
+  .map(s => s.trim())
+  .filter(Boolean);
+
+// ワイルドカード+Credentialsを避けるため、Originを見てマッチしたものだけ返す方式
+const corsOptionsDelegate = (req, callback) => {
+  const reqOrigin = req.header("origin");
+  let corsOptions = { origin: false };
+
+  if (reqOrigin) {
+    const ok = ALLOW_ORIGINS.some(pat => {
+      if (pat.endsWith(":*")) {
+        // 例: http://localhost:* を許可
+        const base = pat.slice(0, -2);
+        return reqOrigin.startsWith(base);
+      }
+      return reqOrigin === pat;
+    });
+    if (ok) {
+      corsOptions = {
+        origin: reqOrigin,
+        // 認証情報を使わないなら false のままでOK（fetch keepalive 可）
+        credentials: false,
+        methods: ["POST", "OPTIONS"],
+        allowedHeaders: [
+          "Content-Type",
+          "X-Telemetry-Token",
+          "Content-Encoding"
+        ],
+        maxAge: 86400 // プリフライトを1日キャッシュ
+      };
+    }
+  }
+  callback(null, corsOptions);
+};
+
+// すべてのルートにCORSを適用（プリフライト含む）
+app.use(cors(corsOptionsDelegate));
+app.options("*", cors(corsOptionsDelegate)); // 明示的にプリフライトを処理
+
 
 // POST /api/telemetry: JSON/NDJSON/gzip を受ける
 app.post(
